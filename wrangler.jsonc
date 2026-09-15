@@ -13,6 +13,10 @@
 		"enabled": true
 	},
 	"upload_source_maps": true,
+	// Daily tee sheet generation (UTC). Runs are idempotent.
+	"triggers": {
+		"crons": ["0 9 * * *"]
+	},
 	"vars": {
 		"ENVIRONMENT": "development",
 		"BETTER_AUTH_URL": "http://localhost:8787"

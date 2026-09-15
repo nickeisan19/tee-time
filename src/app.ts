@@ -3,9 +3,12 @@ import type { AppEnv } from './app-env';
 import { parseConfig } from './config/env';
 import { createDb } from './db/client';
 import { AUTH_BASE_PATH, createAuth } from './features/auth/auth';
+import { courseRoutes } from './features/courses/routes';
 import { membershipInviteAcceptRoutes, membershipRoutes } from './features/memberships/routes';
 import { inviteRoutes } from './features/organizations/invite-routes';
 import { organizationRoutes } from './features/organizations/routes';
+import { rateRoutes } from './features/rates/routes';
+import { teeSheetRoutes } from './features/tee-sheet/routes';
 import { errorBody } from './lib/api-response';
 import { createEmailSender, type EmailSender } from './lib/email';
 import { AppError } from './lib/errors';
@@ -37,6 +40,9 @@ export function createApp(dependencies: AppDependencies = {}): Hono<AppEnv> {
 	app.on(['GET', 'POST'], `${AUTH_BASE_PATH}/*`, (c) => c.var.auth.handler(c.req.raw));
 	app.route('/api/orgs', organizationRoutes);
 	app.route('/api/orgs/:slug', membershipRoutes);
+	app.route('/api/orgs/:slug', courseRoutes);
+	app.route('/api/orgs/:slug', teeSheetRoutes);
+	app.route('/api/orgs/:slug', rateRoutes);
 	app.route('/api/invites', inviteRoutes);
 	app.route('/api/membership-invites', membershipInviteAcceptRoutes);
 

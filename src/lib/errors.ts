@@ -15,6 +15,11 @@ export type ErrorCode =
 	| 'INVALID_STATUS'
 	| 'MEMBER_NUMBER_TAKEN'
 	| 'RATE_LIMITED'
+	| 'NINE_NAME_TAKEN'
+	| 'NINE_IN_USE'
+	| 'ROUTE_NAME_TAKEN'
+	| 'ROUTE_EXISTS'
+	| 'LIMIT_REACHED'
 	| 'INTERNAL_ERROR';
 
 /** An expected failure whose code and message are safe to show to the client. */

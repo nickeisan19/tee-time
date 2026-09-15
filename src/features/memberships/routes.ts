@@ -1,9 +1,10 @@
-import { type Context, Hono } from 'hono';
+import { Hono } from 'hono';
 import type { AppEnv } from '../../app-env';
 import { ok } from '../../lib/api-response';
 import { validationError } from '../../lib/errors';
 import { parseJsonBody } from '../../lib/validation';
 import { requireUser } from '../auth/middleware';
+import { slugParam } from '../organizations/route-params';
 import { membershipInviteServiceFor, membershipServiceFor, tierServiceFor } from './context';
 import {
 	acceptMembershipInviteSchema,
@@ -18,11 +19,6 @@ import {
 	updateTierSchema,
 } from './validation';
 
-function slugParam(c: Context<AppEnv>): string {
-	const slug = c.req.param('slug');
-	if (!slug) throw validationError('Missing club address');
-	return slug;
-}
 
 /** Club-scoped membership routes, mounted under /api/orgs/:slug. */
 export const membershipRoutes = new Hono<AppEnv>()
