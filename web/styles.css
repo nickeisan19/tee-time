@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+@import '@fontsource/barlow/400.css';
+@import '@fontsource/barlow/500.css';
+@import '@fontsource/barlow/600.css';
+@import '@fontsource/barlow-condensed/600.css';
+@import '@fontsource/barlow-condensed/700.css';
+
+@theme {
+	--font-sans: 'Barlow', ui-sans-serif, system-ui, sans-serif;
+	--font-display: 'Barlow Condensed', 'Barlow', ui-sans-serif, system-ui, sans-serif;
+
+	--color-ink: #0b0b0b;
+	--color-paper: #ffffff;
+	--color-bone: #f6f5f3;
+	--color-stone-200: #e7e5e2;
+	--color-stone-400: #a8a39c;
+	--color-stone-600: #5e5a55;
+	--color-signal: #c8102e;
+	--color-signal-dark: #a00d25;
+}
+
+@layer base {
+	html {
+		-webkit-tap-highlight-color: transparent;
+	}
+
+	body {
+		font-family: var(--font-sans);
+		color: var(--color-ink);
+		background: var(--color-paper);
+		-webkit-font-smoothing: antialiased;
+	}
+}

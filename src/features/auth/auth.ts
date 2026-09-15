@@ -9,6 +9,8 @@ import { verifyEmailWithPassword } from './verify-email-plugin';
 export const AUTH_BASE_PATH = '/api/auth';
 /** Frontend page that asks for the account password, then calls /api/auth/verify-email-with-password. */
 export const VERIFY_EMAIL_PAGE_PATH = '/verify-email';
+/** Frontend page that collects the new password, then calls /api/auth/reset-password. */
+export const RESET_PASSWORD_PAGE_PATH = '/reset-password';
 
 interface AuthDependencies {
 	config: AppConfig;
@@ -40,11 +42,12 @@ export function createAuth({ config, db, emailSender }: AuthDependencies) {
 			enabled: true,
 			requireEmailVerification: true,
 			revokeSessionsOnPasswordReset: true,
-			sendResetPassword: async ({ user, url }) => {
+			sendResetPassword: async ({ user, token }) => {
+				const link = `${appOrigin(config)}${RESET_PASSWORD_PAGE_PATH}?token=${encodeURIComponent(token)}`;
 				await emailSender.send({
 					to: user.email,
 					subject: 'Reset your password',
-					text: `Reset your password: ${url}\n\nIf you didn't ask to reset your password, ignore this email. Your password won't change.`,
+					text: `Reset your password: ${link}\n\nIf you didn't ask to reset your password, ignore this email. Your password won't change.`,
 				});
 			},
 		},

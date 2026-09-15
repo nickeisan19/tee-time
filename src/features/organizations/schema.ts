@@ -22,6 +22,8 @@ export const organizations = sqliteTable('organizations', {
 	publicBookingWindowDays: integer('public_booking_window_days').notNull().default(DEFAULT_PUBLIC_BOOKING_WINDOW_DAYS),
 	// Golfers can cancel their own bookings until this many hours before the tee time; staff anytime.
 	cancellationCutoffHours: integer('cancellation_cutoff_hours').notNull().default(DEFAULT_CANCELLATION_CUTOFF_HOURS),
+	// Set when a logo is stored in R2 (key `logos/<org id>`); also versions the public logo URL.
+	logoUpdatedAt: integer('logo_updated_at', { mode: 'timestamp_ms' }),
 	createdAt: createdAt(),
 	updatedAt: updatedAt(),
 });

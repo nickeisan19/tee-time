@@ -13,6 +13,12 @@
 		"enabled": true
 	},
 	"upload_source_maps": true,
+	// The React app (web/) is built by Vite into static assets. API requests go to the Worker first;
+	// every other path falls back to index.html so client-side routes work on refresh.
+	"assets": {
+		"not_found_handling": "single-page-application",
+		"run_worker_first": ["/api/*"]
+	},
 	// Daily tee sheet generation (UTC). Runs are idempotent.
 	"triggers": {
 		"crons": ["0 9 * * *"]
@@ -31,12 +37,15 @@
 			"migrations_dir": "migrations"
 		}
 	],
+	// Club logos. Create real buckets with `npx wrangler r2 bucket create <name>` before deploying.
+	"r2_buckets": [{ "binding": "LOGOS", "bucket_name": "tee-time-saas-logos-dev" }],
 	"env": {
 		"staging": {
 			"vars": {
 				"ENVIRONMENT": "staging",
 				"BETTER_AUTH_URL": "https://staging.example.com"
 			},
+			"r2_buckets": [{ "binding": "LOGOS", "bucket_name": "tee-time-saas-logos-staging" }],
 			"d1_databases": [
 				{
 					"binding": "DB",
@@ -51,6 +60,7 @@
 				"ENVIRONMENT": "production",
 				"BETTER_AUTH_URL": "https://app.example.com"
 			},
+			"r2_buckets": [{ "binding": "LOGOS", "bucket_name": "tee-time-saas-logos-production" }],
 			"d1_databases": [
 				{
 					"binding": "DB",

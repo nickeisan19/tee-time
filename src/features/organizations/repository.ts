@@ -11,6 +11,7 @@ export interface Club {
 	timezone: string;
 	publicBookingWindowDays: number;
 	cancellationCutoffHours: number;
+	logoUpdatedAt: Date | null;
 }
 
 export interface StaffMember {
@@ -26,6 +27,7 @@ export interface OrganizationRepository {
 	findById(orgId: string): Promise<Club | null>;
 	createWithOwner(input: CreateClubInput, ownerUserId: string): Promise<Club>;
 	updateSettings(orgId: string, settings: ClubSettingsInput): Promise<Club>;
+	setLogoUpdatedAt(orgId: string, updatedAt: Date | null): Promise<Club>;
 	findStaffRole(orgId: string, userId: string): Promise<StaffRole | null>;
 	hasStaffWithEmail(orgId: string, email: string): Promise<boolean>;
 	listStaff(orgId: string): Promise<StaffMember[]>;
@@ -40,6 +42,7 @@ const clubColumns = {
 	timezone: organizations.timezone,
 	publicBookingWindowDays: organizations.publicBookingWindowDays,
 	cancellationCutoffHours: organizations.cancellationCutoffHours,
+	logoUpdatedAt: organizations.logoUpdatedAt,
 };
 
 export function createOrganizationRepository(db: Database): OrganizationRepository {
@@ -66,7 +69,13 @@ export function createOrganizationRepository(db: Database): OrganizationReposito
 				...input,
 				publicBookingWindowDays: DEFAULT_PUBLIC_BOOKING_WINDOW_DAYS,
 				cancellationCutoffHours: DEFAULT_CANCELLATION_CUTOFF_HOURS,
+				logoUpdatedAt: null,
 			};
+		},
+
+		async setLogoUpdatedAt(orgId, logoUpdatedAt) {
+			const [club] = await db.update(organizations).set({ logoUpdatedAt }).where(eq(organizations.id, orgId)).returning(clubColumns);
+			return club;
 		},
 
 		async updateSettings(orgId, settings) {

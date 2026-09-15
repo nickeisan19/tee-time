@@ -57,6 +57,13 @@
       "when": 1789493047074,
       "tag": "0007_bookings",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "6",
+      "when": 1789498171487,
+      "tag": "0008_club_logo",
+      "breakpoints": true
     }
   ]
 }

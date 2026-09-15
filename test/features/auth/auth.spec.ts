@@ -115,6 +115,26 @@ describe('email + password sign-up', () => {
 	});
 });
 
+describe('password reset', () => {
+	it('emails a link to the app’s reset page and signs in with the new password', async () => {
+		const client = createTestClient();
+		const { email } = await createVerifiedUser(client);
+
+		const requested = await client.request('/api/auth/request-password-reset', { method: 'POST', json: { email } });
+		expect(requested.status).toBe(200);
+		const token = findLinkToken(client.outbox, email, '/reset-password');
+		expect(client.outbox.findLast((message) => message.to === email)?.text).toContain(`${BASE_URL}/reset-password?token=`);
+
+		const reset = await client.request('/api/auth/reset-password', { method: 'POST', json: { token, newPassword: 'a-brand-new-password' } });
+		expect(reset.status).toBe(200);
+
+		const oldPassword = await signIn(client, email);
+		const newPassword = await client.request('/api/auth/sign-in/email', { method: 'POST', json: { email, password: 'a-brand-new-password' } });
+		expect(oldPassword.status).toBe(401);
+		expect(newPassword.status).toBe(200);
+	});
+});
+
 describe('email verification', () => {
 	async function signUpAndGetToken(client: ReturnType<typeof createTestClient>) {
 		const email = uniqueEmail();

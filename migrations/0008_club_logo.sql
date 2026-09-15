@@ -1,0 +1,1 @@
+ALTER TABLE `organizations` ADD `logo_updated_at` integer;

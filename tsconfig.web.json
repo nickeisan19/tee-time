@@ -1,0 +1,9 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"lib": ["es2024", "dom", "dom.iterable"],
+		"types": ["vite/client", "@testing-library/jest-dom/vitest"]
+	},
+	"include": ["web/**/*.ts", "web/**/*.tsx", "src/**/*.ts", "worker-configuration.d.ts"],
+	"exclude": []
+}

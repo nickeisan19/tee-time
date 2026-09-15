@@ -22,4 +22,20 @@ describe('app', () => {
 		const body = await response.json<ApiBody<null>>();
 		expect(body.error).toEqual({ code: 'INTERNAL_ERROR', message: 'Something went wrong' });
 	});
+
+	it('sends security headers with API responses', async () => {
+		const response = await createTestClient().request('/api/auth-options');
+
+		expect(response.headers.get('x-content-type-options')).toBe('nosniff');
+		expect(response.headers.get('x-frame-options')).toBe('SAMEORIGIN');
+		expect(response.headers.get('strict-transport-security')).toContain('max-age=');
+	});
+
+	it('tells the sign-in page which sign-in methods are available', async () => {
+		const withoutGoogle = await createTestClient().request('/api/auth-options');
+		const withGoogle = await createTestClient({ GOOGLE_CLIENT_ID: 'id', GOOGLE_CLIENT_SECRET: 'secret' }).request('/api/auth-options');
+
+		expect((await withoutGoogle.json<ApiBody<{ google: boolean }>>()).data).toEqual({ google: false });
+		expect((await withGoogle.json<ApiBody<{ google: boolean }>>()).data).toEqual({ google: true });
+	});
 });

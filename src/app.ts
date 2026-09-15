@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { secureHeaders } from 'hono/secure-headers';
 import type { AppEnv } from './app-env';
 import { parseConfig } from './config/env';
 import { createDb } from './db/client';
@@ -10,7 +11,7 @@ import { inviteRoutes } from './features/organizations/invite-routes';
 import { organizationRoutes } from './features/organizations/routes';
 import { rateRoutes } from './features/rates/routes';
 import { teeSheetRoutes } from './features/tee-sheet/routes';
-import { errorBody } from './lib/api-response';
+import { errorBody, ok } from './lib/api-response';
 import { createEmailSender, type EmailSender } from './lib/email';
 import { AppError } from './lib/errors';
 import { createLogger } from './lib/logger';
@@ -23,6 +24,9 @@ export interface AppDependencies {
 
 export function createApp(dependencies: AppDependencies = {}): Hono<AppEnv> {
 	const app = new Hono<AppEnv>();
+
+	// nosniff, no framing, no referrer, HSTS. Static pages get theirs from public/_headers.
+	app.use('*', secureHeaders());
 
 	app.use('*', async (c, next) => {
 		const logger = createLogger({ requestId: c.req.header('cf-ray') ?? crypto.randomUUID() });
@@ -39,6 +43,8 @@ export function createApp(dependencies: AppDependencies = {}): Hono<AppEnv> {
 	});
 
 	app.on(['GET', 'POST'], `${AUTH_BASE_PATH}/*`, (c) => c.var.auth.handler(c.req.raw));
+	// Lets the sign-in page show only the sign-in methods this deployment supports.
+	app.get('/api/auth-options', (c) => ok(c, { google: c.var.config.google !== undefined }));
 	app.route('/api/orgs', organizationRoutes);
 	app.route('/api/orgs/:slug', membershipRoutes);
 	app.route('/api/orgs/:slug', courseRoutes);

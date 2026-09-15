@@ -15,7 +15,9 @@ export interface ApiBody<T> {
 interface RequestOptions {
 	method?: string;
 	json?: unknown;
-	body?: string;
+	body?: string | Uint8Array | ReadableStream<Uint8Array>;
+	/** Content type for a raw `body`; defaults to JSON. */
+	contentType?: string;
 	cookie?: string;
 	/** Client IP as Cloudflare reports it. Defaults to a random address so rate limits don't bleed between requests. */
 	ip?: string;
@@ -45,9 +47,9 @@ export function createTestClient(envOverrides: Record<string, string> = {}): Tes
 
 	return {
 		outbox,
-		request: async (path, { method = 'GET', json, body, cookie, ip = randomIp() } = {}) => {
+		request: async (path, { method = 'GET', json, body, contentType, cookie, ip = randomIp() } = {}) => {
 			const headers = new Headers({ origin: BASE_URL, 'cf-connecting-ip': ip });
-			if (json !== undefined || body !== undefined) headers.set('content-type', 'application/json');
+			if (json !== undefined || body !== undefined) headers.set('content-type', contentType ?? 'application/json');
 			if (cookie) headers.set('cookie', cookie);
 			const requestBody = json === undefined ? body : JSON.stringify(json);
 			return app.request(`${BASE_URL}${path}`, { method, headers, body: requestBody }, testEnv);
