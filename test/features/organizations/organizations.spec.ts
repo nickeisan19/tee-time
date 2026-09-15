@@ -108,6 +108,7 @@ describe('GET /api/orgs/:slug', () => {
 			slug,
 			timezone: 'America/Los_Angeles',
 			publicBookingWindowDays: 7,
+			cancellationCutoffHours: 24,
 		});
 	});
 

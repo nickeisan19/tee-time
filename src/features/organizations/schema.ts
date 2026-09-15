@@ -5,6 +5,8 @@ import { users } from '../auth/schema';
 
 export const DEFAULT_PUBLIC_BOOKING_WINDOW_DAYS = 7;
 export const MAX_BOOKING_WINDOW_DAYS = 365;
+export const DEFAULT_CANCELLATION_CUTOFF_HOURS = 24;
+export const MAX_CANCELLATION_CUTOFF_HOURS = 168;
 
 export const STAFF_ROLES = ['owner', 'admin', 'staff'] as const;
 export type StaffRole = (typeof STAFF_ROLES)[number];
@@ -18,6 +20,8 @@ export const organizations = sqliteTable('organizations', {
 	timezone: text('timezone').notNull(),
 	// How many days ahead non-members may book. Members use their tier's window instead.
 	publicBookingWindowDays: integer('public_booking_window_days').notNull().default(DEFAULT_PUBLIC_BOOKING_WINDOW_DAYS),
+	// Golfers can cancel their own bookings until this many hours before the tee time; staff anytime.
+	cancellationCutoffHours: integer('cancellation_cutoff_hours').notNull().default(DEFAULT_CANCELLATION_CUTOFF_HOURS),
 	createdAt: createdAt(),
 	updatedAt: updatedAt(),
 });

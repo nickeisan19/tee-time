@@ -1,7 +1,7 @@
 import { and, asc, eq, ne, or, sql } from 'drizzle-orm';
 import type { Database } from '../../db/client';
 import { users } from '../auth/schema';
-import { DEFAULT_PUBLIC_BOOKING_WINDOW_DAYS, organizations, orgStaff, type StaffRole } from './schema';
+import { DEFAULT_CANCELLATION_CUTOFF_HOURS, DEFAULT_PUBLIC_BOOKING_WINDOW_DAYS, organizations, orgStaff, type StaffRole } from './schema';
 import type { ClubSettingsInput, CreateClubInput } from './validation';
 
 export interface Club {
@@ -10,6 +10,7 @@ export interface Club {
 	slug: string;
 	timezone: string;
 	publicBookingWindowDays: number;
+	cancellationCutoffHours: number;
 }
 
 export interface StaffMember {
@@ -38,6 +39,7 @@ const clubColumns = {
 	slug: organizations.slug,
 	timezone: organizations.timezone,
 	publicBookingWindowDays: organizations.publicBookingWindowDays,
+	cancellationCutoffHours: organizations.cancellationCutoffHours,
 };
 
 export function createOrganizationRepository(db: Database): OrganizationRepository {
@@ -59,7 +61,12 @@ export function createOrganizationRepository(db: Database): OrganizationReposito
 				db.insert(organizations).values({ id, ...input }),
 				db.insert(orgStaff).values({ orgId: id, userId: ownerUserId, role: 'owner' }),
 			]);
-			return { id, ...input, publicBookingWindowDays: DEFAULT_PUBLIC_BOOKING_WINDOW_DAYS };
+			return {
+				id,
+				...input,
+				publicBookingWindowDays: DEFAULT_PUBLIC_BOOKING_WINDOW_DAYS,
+				cancellationCutoffHours: DEFAULT_CANCELLATION_CUTOFF_HOURS,
+			};
 		},
 
 		async updateSettings(orgId, settings) {

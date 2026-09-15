@@ -22,3 +22,13 @@ export function isForeignKeyViolation(error: unknown): boolean {
 	}
 	return false;
 }
+
+/** True when the error (or its `cause` chain) is a failure of the named SQLite CHECK constraint. */
+export function isCheckViolation(error: unknown, constraintName: string): boolean {
+	let current: unknown = error;
+	while (current instanceof Error) {
+		if (current.message.includes('CHECK constraint failed') && current.message.includes(constraintName)) return true;
+		current = current.cause;
+	}
+	return false;
+}

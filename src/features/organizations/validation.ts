@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { MAX_BOOKING_WINDOW_DAYS, STAFF_ROLES } from './schema';
+import { MAX_BOOKING_WINDOW_DAYS, MAX_CANCELLATION_CUTOFF_HOURS, STAFF_ROLES } from './schema';
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const MIN_SLUG_LENGTH = 2;
@@ -24,9 +24,13 @@ export const createClubSchema = z.object({
 
 export const bookingWindowDaysSchema = z.number().int().min(0).max(MAX_BOOKING_WINDOW_DAYS);
 
-export const clubSettingsSchema = z.object({
-	publicBookingWindowDays: bookingWindowDaysSchema,
-});
+export const clubSettingsSchema = z
+	.object({
+		publicBookingWindowDays: bookingWindowDaysSchema,
+		cancellationCutoffHours: z.number().int().min(0).max(MAX_CANCELLATION_CUTOFF_HOURS),
+	})
+	.partial()
+	.refine((settings) => Object.keys(settings).length > 0, { message: 'Provide at least one setting to update' });
 
 export const inviteStaffSchema = z.object({
 	email: z.email().transform((email) => email.toLowerCase()),

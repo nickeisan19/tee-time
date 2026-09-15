@@ -5,3 +5,4 @@ export * from '../features/memberships/schema';
 export * from '../features/courses/schema';
 export * from '../features/tee-sheet/schema';
 export * from '../features/rates/schema';
+export * from '../features/bookings/schema';

@@ -14,6 +14,8 @@ export interface RateLimitCheck {
 	rule: RateLimitRule;
 	/** Who or what is being limited (a user id, club id, or hashed email). Never raw personal data. */
 	subject: string;
+	/** How much this attempt uses up (default 1), e.g. the number of players in a booking. */
+	cost?: number;
 }
 
 export interface RateLimiter {
@@ -56,17 +58,17 @@ export function createRateLimiter(db: Database, secret: string): RateLimiter {
 		async enforce(checks, nowMs = Date.now()) {
 			if (checks.length === 0) return;
 
-			const statements = checks.map(({ rule, subject }) => {
+			const statements = checks.map(({ rule, subject, cost = 1 }) => {
 				const windowExpired = sql`${rateLimits.lastRequest} <= ${nowMs - rule.windowSeconds * 1000}`;
 				return (
 					db
 						.insert(rateLimits)
 						// For app keys, last_request holds the start of the current window.
-						.values({ key: `${KEY_PREFIX}:${rule.name}:${subject}`, count: 1, lastRequest: nowMs })
+						.values({ key: `${KEY_PREFIX}:${rule.name}:${subject}`, count: cost, lastRequest: nowMs })
 						.onConflictDoUpdate({
 							target: rateLimits.key,
 							set: {
-								count: sql`CASE WHEN ${windowExpired} THEN 1 ELSE ${rateLimits.count} + 1 END`,
+								count: sql`CASE WHEN ${windowExpired} THEN ${cost} ELSE ${rateLimits.count} + ${cost} END`,
 								lastRequest: sql`CASE WHEN ${windowExpired} THEN ${nowMs} ELSE ${rateLimits.lastRequest} END`,
 							},
 						})

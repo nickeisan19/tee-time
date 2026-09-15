@@ -20,6 +20,10 @@ export type ErrorCode =
 	| 'ROUTE_NAME_TAKEN'
 	| 'ROUTE_EXISTS'
 	| 'LIMIT_REACHED'
+	| 'TEE_TIME_UNAVAILABLE'
+	| 'NO_CROSSOVER'
+	| 'OUTSIDE_BOOKING_WINDOW'
+	| 'CANCELLATION_CLOSED'
 	| 'INTERNAL_ERROR';
 
 /** An expected failure whose code and message are safe to show to the client. */

@@ -48,6 +48,33 @@ describe('club booking settings', () => {
 		}
 	});
 
+	it('defaults the cancellation cutoff to 24 hours and lets managers change it', async () => {
+		const setup = await setUpClub();
+		expect(
+			(await data<{ cancellationCutoffHours: number }>(await setup.client.request(`/api/orgs/${setup.slug}`))).cancellationCutoffHours,
+		).toBe(24);
+
+		const response = await setup.client.request(`/api/orgs/${setup.slug}/settings`, {
+			method: 'PATCH',
+			cookie: setup.owner.cookie,
+			json: { cancellationCutoffHours: 48 },
+		});
+
+		expect((await data<{ cancellationCutoffHours: number; publicBookingWindowDays: number }>(response)).cancellationCutoffHours).toBe(48);
+		expect(
+			(
+				await setup.client.request(`/api/orgs/${setup.slug}/settings`, {
+					method: 'PATCH',
+					cookie: setup.owner.cookie,
+					json: { cancellationCutoffHours: 169 },
+				})
+			).status,
+		).toBe(400);
+		expect(
+			(await setup.client.request(`/api/orgs/${setup.slug}/settings`, { method: 'PATCH', cookie: setup.owner.cookie, json: {} })).status,
+		).toBe(400);
+	});
+
 	it.each([[-1], [366], [2.5]])('rejects a booking window of %s days', async (days) => {
 		const setup = await setUpClub();
 

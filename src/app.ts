@@ -3,6 +3,7 @@ import type { AppEnv } from './app-env';
 import { parseConfig } from './config/env';
 import { createDb } from './db/client';
 import { AUTH_BASE_PATH, createAuth } from './features/auth/auth';
+import { bookingRoutes } from './features/bookings/routes';
 import { courseRoutes } from './features/courses/routes';
 import { membershipInviteAcceptRoutes, membershipRoutes } from './features/memberships/routes';
 import { inviteRoutes } from './features/organizations/invite-routes';
@@ -43,6 +44,7 @@ export function createApp(dependencies: AppDependencies = {}): Hono<AppEnv> {
 	app.route('/api/orgs/:slug', courseRoutes);
 	app.route('/api/orgs/:slug', teeSheetRoutes);
 	app.route('/api/orgs/:slug', rateRoutes);
+	app.route('/api/orgs/:slug', bookingRoutes);
 	app.route('/api/invites', inviteRoutes);
 	app.route('/api/membership-invites', membershipInviteAcceptRoutes);
 

@@ -1,0 +1,1 @@
+ALTER TABLE `organizations` ADD `cancellation_cutoff_hours` integer DEFAULT 24 NOT NULL;

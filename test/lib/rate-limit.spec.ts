@@ -71,4 +71,12 @@ describe('rate limiter', () => {
 		expect(hashed).not.toBe(await sha256Hex(email));
 		expect(hashed).not.toBe(await createRateLimiter(db, 'a-different-secret-that-is-32-chars').hashSubject(email));
 	});
+
+	it('counts weighted attempts against the limit', async () => {
+		const rule = uniqueRule(10);
+		await limiter.enforce([{ rule, subject: 'alice', cost: 6 }], START);
+
+		await expect(limiter.enforce([{ rule, subject: 'alice', cost: 4 }], START)).resolves.toBeUndefined();
+		await expect(limiter.enforce([{ rule, subject: 'alice', cost: 1 }], START)).rejects.toBeInstanceOf(RateLimitedError);
+	});
 });

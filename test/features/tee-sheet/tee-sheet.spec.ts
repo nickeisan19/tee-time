@@ -173,7 +173,8 @@ describe('generation limits', () => {
 		expect(overLimit.status).toBe(429);
 	});
 
-	it('rate limits bulk tee time changes per staff member', async () => {
+	// Sends one more request than the hourly limit, so it needs longer than the default timeout under full-suite load.
+	it('rate limits bulk tee time changes per staff member', { timeout: 120_000 }, async () => {
 		const setup = await setUpClub();
 		const staff = await addClubStaff(setup, 'staff');
 		const change = { date: DATE, fromTime: '07:00', toTime: '08:00', status: 'blocked' };
