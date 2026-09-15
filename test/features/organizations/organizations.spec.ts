@@ -102,7 +102,13 @@ describe('GET /api/orgs/:slug', () => {
 
 		expect(response.status).toBe(200);
 		const body = await response.json<ApiBody<Record<string, unknown>>>();
-		expect(body.data).toEqual({ id: expect.any(String), name: 'Pebble Creek', slug, timezone: 'America/Los_Angeles' });
+		expect(body.data).toEqual({
+			id: expect.any(String),
+			name: 'Pebble Creek',
+			slug,
+			timezone: 'America/Los_Angeles',
+			publicBookingWindowDays: 7,
+		});
 	});
 
 	it('returns 404 for an unknown club', async () => {

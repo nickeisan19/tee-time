@@ -2,6 +2,8 @@ import type { SessionUser } from '../../app-env';
 import { isUniqueViolation } from '../../db/errors';
 import type { EmailSender } from '../../lib/email';
 import { conflict, forbidden, notFound } from '../../lib/errors';
+import { INVITE_TTL_DAYS, inviteExpiresAt, inviteRateLimitChecks } from '../../lib/invites';
+import type { RateLimiter } from '../../lib/rate-limit';
 import { generateToken, sha256Hex } from '../../lib/tokens';
 import { loadClub, requireStaffRole } from './club-access';
 import type { InviteRepository, PendingInvite } from './invite-repository';
@@ -10,14 +12,13 @@ import type { OrganizationRepository } from './repository';
 import type { StaffRole } from './schema';
 import type { InviteStaffInput } from './validation';
 
-const INVITE_TTL_DAYS = 7;
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
 export const ACCEPT_INVITE_PATH = '/invites/accept';
 
 interface InviteServiceDependencies {
 	organizations: OrganizationRepository;
 	invites: InviteRepository;
 	emailSender: EmailSender;
+	rateLimiter?: RateLimiter;
 	appOrigin: string;
 	now?: () => Date;
 }
@@ -39,6 +40,7 @@ export function createInviteService({
 	organizations,
 	invites,
 	emailSender,
+	rateLimiter,
 	appOrigin,
 	now = () => new Date(),
 }: InviteServiceDependencies): InviteService {
@@ -51,6 +53,10 @@ export function createInviteService({
 			if (await organizations.hasStaffWithEmail(club.id, email)) {
 				throw conflict('ALREADY_STAFF', 'That person is already on staff');
 			}
+			// Checked after permissions so people who can't invite can't use up the club's allowance.
+			if (rateLimiter) {
+				await rateLimiter.enforce(inviteRateLimitChecks(actorUserId, club.id, await rateLimiter.hashSubject(email)));
+			}
 
 			const token = generateToken();
 			const written = await invites.upsert(
@@ -60,7 +66,7 @@ export function createInviteService({
 					role,
 					tokenHash: await sha256Hex(token),
 					invitedByUserId: actorUserId,
-					expiresAt: new Date(now().getTime() + INVITE_TTL_DAYS * MS_PER_DAY),
+					expiresAt: inviteExpiresAt(now()),
 				},
 				// Replacing an invite is as strong as revoking it, so apply the same role rule.
 				manageableRoles(actorRole),

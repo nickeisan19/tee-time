@@ -4,7 +4,7 @@ import { ok } from '../../lib/api-response';
 import { parseJsonBody } from '../../lib/validation';
 import { requireUser } from '../auth/middleware';
 import { inviteServiceFor, organizationServiceFor } from './context';
-import { createClubSchema, inviteStaffSchema } from './validation';
+import { clubSettingsSchema, createClubSchema, inviteStaffSchema } from './validation';
 
 export const organizationRoutes = new Hono<AppEnv>()
 	.post('/', requireUser, async (c) => {
@@ -14,6 +14,11 @@ export const organizationRoutes = new Hono<AppEnv>()
 	})
 	.get('/:slug', async (c) => {
 		const club = await organizationServiceFor(c).getClub(c.req.param('slug'));
+		return ok(c, club);
+	})
+	.patch('/:slug/settings', requireUser, async (c) => {
+		const settings = await parseJsonBody(c, clubSettingsSchema);
+		const club = await organizationServiceFor(c).updateSettings(c.req.param('slug'), c.var.user.id, settings);
 		return ok(c, club);
 	})
 	.get('/:slug/staff', requireUser, async (c) => {

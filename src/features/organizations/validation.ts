@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { STAFF_ROLES } from './schema';
+import { MAX_BOOKING_WINDOW_DAYS, STAFF_ROLES } from './schema';
 
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const MIN_SLUG_LENGTH = 2;
@@ -22,6 +22,12 @@ export const createClubSchema = z.object({
 	timezone: z.string().refine(isKnownTimezone, 'Unknown timezone'),
 });
 
+export const bookingWindowDaysSchema = z.number().int().min(0).max(MAX_BOOKING_WINDOW_DAYS);
+
+export const clubSettingsSchema = z.object({
+	publicBookingWindowDays: bookingWindowDaysSchema,
+});
+
 export const inviteStaffSchema = z.object({
 	email: z.email().transform((email) => email.toLowerCase()),
 	role: z.enum(STAFF_ROLES),
@@ -33,3 +39,4 @@ export const acceptInviteSchema = z.object({
 
 export type CreateClubInput = z.output<typeof createClubSchema>;
 export type InviteStaffInput = z.output<typeof inviteStaffSchema>;
+export type ClubSettingsInput = z.output<typeof clubSettingsSchema>;

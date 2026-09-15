@@ -1,7 +1,21 @@
 import type { ContentfulStatusCode } from 'hono/utils/http-status';
 
 export type ErrorCode =
-	'VALIDATION_ERROR' | 'UNAUTHENTICATED' | 'FORBIDDEN' | 'NOT_FOUND' | 'SLUG_TAKEN' | 'ALREADY_STAFF' | 'LAST_OWNER' | 'INTERNAL_ERROR';
+	| 'VALIDATION_ERROR'
+	| 'UNAUTHENTICATED'
+	| 'FORBIDDEN'
+	| 'NOT_FOUND'
+	| 'SLUG_TAKEN'
+	| 'ALREADY_STAFF'
+	| 'LAST_OWNER'
+	| 'TIER_NAME_TAKEN'
+	| 'TIER_IN_USE'
+	| 'ALREADY_MEMBER'
+	| 'REQUEST_PENDING'
+	| 'INVALID_STATUS'
+	| 'MEMBER_NUMBER_TAKEN'
+	| 'RATE_LIMITED'
+	| 'INTERNAL_ERROR';
 
 /** An expected failure whose code and message are safe to show to the client. */
 export class AppError extends Error {

@@ -1,6 +1,7 @@
 import type { Context } from 'hono';
 import type { AppEnv } from '../../app-env';
 import { appOrigin } from '../../config/env';
+import { createRateLimiter } from '../../lib/rate-limit';
 import { createInviteRepository } from './invite-repository';
 import { createInviteService, type InviteService } from './invite-service';
 import { createOrganizationRepository } from './repository';
@@ -15,6 +16,7 @@ export function inviteServiceFor(c: Context<AppEnv>): InviteService {
 		organizations: createOrganizationRepository(c.var.db),
 		invites: createInviteRepository(c.var.db),
 		emailSender: c.var.emailSender,
+		rateLimiter: createRateLimiter(c.var.db, c.var.config.authSecret),
 		appOrigin: appOrigin(c.var.config),
 	});
 }

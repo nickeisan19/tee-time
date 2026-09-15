@@ -3,6 +3,9 @@ import { check, index, integer, primaryKey, sqliteTable, text, uniqueIndex } fro
 import { createdAt, updatedAt, uuidPrimaryKey } from '../../db/columns';
 import { users } from '../auth/schema';
 
+export const DEFAULT_PUBLIC_BOOKING_WINDOW_DAYS = 7;
+export const MAX_BOOKING_WINDOW_DAYS = 365;
+
 export const STAFF_ROLES = ['owner', 'admin', 'staff'] as const;
 export type StaffRole = (typeof STAFF_ROLES)[number];
 
@@ -13,6 +16,8 @@ export const organizations = sqliteTable('organizations', {
 	slug: text('slug').notNull().unique(),
 	// IANA timezone, e.g. "America/Chicago". Tee sheets are generated in club-local time.
 	timezone: text('timezone').notNull(),
+	// How many days ahead non-members may book. Members use their tier's window instead.
+	publicBookingWindowDays: integer('public_booking_window_days').notNull().default(DEFAULT_PUBLIC_BOOKING_WINDOW_DAYS),
 	createdAt: createdAt(),
 	updatedAt: updatedAt(),
 });

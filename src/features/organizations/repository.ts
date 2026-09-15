@@ -1,14 +1,15 @@
 import { and, asc, eq, ne, or, sql } from 'drizzle-orm';
 import type { Database } from '../../db/client';
 import { users } from '../auth/schema';
-import { organizations, orgStaff, type StaffRole } from './schema';
-import type { CreateClubInput } from './validation';
+import { DEFAULT_PUBLIC_BOOKING_WINDOW_DAYS, organizations, orgStaff, type StaffRole } from './schema';
+import type { ClubSettingsInput, CreateClubInput } from './validation';
 
 export interface Club {
 	id: string;
 	name: string;
 	slug: string;
 	timezone: string;
+	publicBookingWindowDays: number;
 }
 
 export interface StaffMember {
@@ -23,6 +24,7 @@ export interface OrganizationRepository {
 	findBySlug(slug: string): Promise<Club | null>;
 	findById(orgId: string): Promise<Club | null>;
 	createWithOwner(input: CreateClubInput, ownerUserId: string): Promise<Club>;
+	updateSettings(orgId: string, settings: ClubSettingsInput): Promise<Club>;
 	findStaffRole(orgId: string, userId: string): Promise<StaffRole | null>;
 	hasStaffWithEmail(orgId: string, email: string): Promise<boolean>;
 	listStaff(orgId: string): Promise<StaffMember[]>;
@@ -35,6 +37,7 @@ const clubColumns = {
 	name: organizations.name,
 	slug: organizations.slug,
 	timezone: organizations.timezone,
+	publicBookingWindowDays: organizations.publicBookingWindowDays,
 };
 
 export function createOrganizationRepository(db: Database): OrganizationRepository {
@@ -56,7 +59,12 @@ export function createOrganizationRepository(db: Database): OrganizationReposito
 				db.insert(organizations).values({ id, ...input }),
 				db.insert(orgStaff).values({ orgId: id, userId: ownerUserId, role: 'owner' }),
 			]);
-			return { id, ...input };
+			return { id, ...input, publicBookingWindowDays: DEFAULT_PUBLIC_BOOKING_WINDOW_DAYS };
+		},
+
+		async updateSettings(orgId, settings) {
+			const [club] = await db.update(organizations).set(settings).where(eq(organizations.id, orgId)).returning(clubColumns);
+			return club;
 		},
 
 		async findStaffRole(orgId, userId) {

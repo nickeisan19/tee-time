@@ -3,12 +3,14 @@ import type { AppEnv } from './app-env';
 import { parseConfig } from './config/env';
 import { createDb } from './db/client';
 import { AUTH_BASE_PATH, createAuth } from './features/auth/auth';
+import { membershipInviteAcceptRoutes, membershipRoutes } from './features/memberships/routes';
 import { inviteRoutes } from './features/organizations/invite-routes';
 import { organizationRoutes } from './features/organizations/routes';
 import { errorBody } from './lib/api-response';
 import { createEmailSender, type EmailSender } from './lib/email';
 import { AppError } from './lib/errors';
 import { createLogger } from './lib/logger';
+import { RateLimitedError } from './lib/rate-limit';
 
 export interface AppDependencies {
 	/** Overrides the environment's email sender (tests capture emails this way). */
@@ -34,11 +36,17 @@ export function createApp(dependencies: AppDependencies = {}): Hono<AppEnv> {
 
 	app.on(['GET', 'POST'], `${AUTH_BASE_PATH}/*`, (c) => c.var.auth.handler(c.req.raw));
 	app.route('/api/orgs', organizationRoutes);
+	app.route('/api/orgs/:slug', membershipRoutes);
 	app.route('/api/invites', inviteRoutes);
+	app.route('/api/membership-invites', membershipInviteAcceptRoutes);
 
 	app.notFound((c) => c.json(errorBody('NOT_FOUND', 'Route not found'), 404));
 
 	app.onError((error, c) => {
+		if (error instanceof RateLimitedError) {
+			c.var.logger.warn('rate_limit.exceeded', { rules: error.ruleNames, method: c.req.method, path: c.req.path });
+			c.header('Retry-After', String(error.retryAfterSeconds));
+		}
 		if (error instanceof AppError) {
 			return c.json(errorBody(error.code, error.message), error.status);
 		}

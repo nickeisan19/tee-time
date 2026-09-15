@@ -1,9 +1,9 @@
 import { isUniqueViolation } from '../../db/errors';
 import { conflict, forbidden, notFound } from '../../lib/errors';
-import { loadClub, requireStaffRole } from './club-access';
+import { loadClub, requireClubManager, requireStaffRole } from './club-access';
 import { canManageStaffRole } from './permissions';
 import type { Club, OrganizationRepository, StaffMember } from './repository';
-import type { CreateClubInput } from './validation';
+import type { ClubSettingsInput, CreateClubInput } from './validation';
 
 interface OrganizationServiceDependencies {
 	organizations: OrganizationRepository;
@@ -12,6 +12,7 @@ interface OrganizationServiceDependencies {
 export interface OrganizationService {
 	createClub(input: CreateClubInput, actorUserId: string): Promise<Club>;
 	getClub(slug: string): Promise<Club>;
+	updateSettings(slug: string, actorUserId: string, settings: ClubSettingsInput): Promise<Club>;
 	listStaff(slug: string, actorUserId: string): Promise<StaffMember[]>;
 	removeStaff(slug: string, actorUserId: string, targetUserId: string): Promise<void>;
 }
@@ -27,6 +28,12 @@ export function createOrganizationService({ organizations }: OrganizationService
 				if (isUniqueViolation(error, 'organizations.slug')) throw conflict('SLUG_TAKEN', 'That club address is already taken');
 				throw error;
 			}
+		},
+
+		async updateSettings(slug, actorUserId, settings) {
+			const club = await loadClub(organizations, slug);
+			await requireClubManager(organizations, club, actorUserId);
+			return organizations.updateSettings(club.id, settings);
 		},
 
 		async listStaff(slug, actorUserId) {
