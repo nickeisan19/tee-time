@@ -1,0 +1,60 @@
+/**
+ * Wrangler configuration: https://developers.cloudflare.com/workers/wrangler/configuration/
+ * Run `npm run cf-typegen` after changing bindings or vars.
+ */
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "tee-time-saas",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-09-11",
+	// Better Auth relies on AsyncLocalStorage from node:async_hooks.
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"observability": {
+		"enabled": true
+	},
+	"upload_source_maps": true,
+	"vars": {
+		"ENVIRONMENT": "development",
+		"BETTER_AUTH_URL": "http://localhost:8787"
+	},
+	// Local development only. Create real databases with `npx wrangler d1 create <name>`
+	// and paste their ids into the staging and production blocks below.
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "tee-time-saas-dev",
+			"database_id": "00000000-0000-0000-0000-000000000000",
+			"migrations_dir": "migrations"
+		}
+	],
+	"env": {
+		"staging": {
+			"vars": {
+				"ENVIRONMENT": "staging",
+				"BETTER_AUTH_URL": "https://staging.example.com"
+			},
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "tee-time-saas-staging",
+					"database_id": "00000000-0000-0000-0000-000000000001",
+					"migrations_dir": "migrations"
+				}
+			]
+		},
+		"production": {
+			"vars": {
+				"ENVIRONMENT": "production",
+				"BETTER_AUTH_URL": "https://app.example.com"
+			},
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"database_name": "tee-time-saas-production",
+					"database_id": "00000000-0000-0000-0000-000000000002",
+					"migrations_dir": "migrations"
+				}
+			]
+		}
+	}
+}

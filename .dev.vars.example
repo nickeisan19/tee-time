@@ -1,0 +1,9 @@
+# Copy to .dev.vars for local development (never commit .dev.vars).
+# In staging/production set these with: npx wrangler secret put <NAME> --env <env>
+
+# At least 32 characters. Generate with: openssl rand -base64 32
+BETTER_AUTH_SECRET=
+
+# Optional. Set both to enable "Sign in with Google".
+# GOOGLE_CLIENT_ID=
+# GOOGLE_CLIENT_SECRET=

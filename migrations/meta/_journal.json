@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1789417531635,
+      "tag": "0000_identity_and_tenancy",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1789419041990,
+      "tag": "0001_auth_rate_limits",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1789421357469,
+      "tag": "0002_staff_invites",
+      "breakpoints": true
+    }
+  ]
+}

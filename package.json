@@ -1,0 +1,41 @@
+{
+  "name": "tee-time-saas",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler d1 migrations apply DB --local && wrangler dev",
+    "start": "npm run dev",
+    "test": "vitest run",
+    "cf-typegen": "wrangler types",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p test",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply DB --local",
+    "db:migrate:remote": "wrangler d1 migrations apply DB --remote",
+    "check": "npm run typecheck && npm run lint && npm run coverage && wrangler deploy --dry-run"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.0.0",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.5.1",
+    "@vitest/coverage-istanbul": "~4.1.0",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "^10.10.0",
+    "prettier": "^3.9.6",
+    "typescript": "^5.5.2",
+    "typescript-eslint": "^8.70.0",
+    "vitest": "~4.1.0",
+    "wrangler": "^4.131.2"
+  },
+  "dependencies": {
+    "better-auth": "^1.7.4",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.13.7",
+    "zod": "^4.6.5"
+  },
+  "type": "module"
+}
